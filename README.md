@@ -52,40 +52,62 @@ Platform | Description
    - **Host**: IP address of your OSC-enabled hardware
    - **Port**: OSC port (default: 9000)
 
-### Adding Entities
+### Adding Controls
 
-After setting up the integration, you can add buttons and sliders:
+After setting up the integration, add buttons and sliders using service calls:
 
-#### Via UI (Helper)
+#### Via Developer Tools
 
-1. Go to **Settings** → **Devices & Services** → **Helpers**
-2. Click **+ Create Helper**
-3. Choose either:
-   - **Button** for triggering OSC messages
-   - **Number** for continuous control (sliders/faders)
+1. Go to **Developer Tools** → **Services**
+2. Select service:
+   - `ha_osc_control.add_button` for triggering OSC messages
+   - `ha_osc_control.add_slider` for continuous control (sliders/faders)
+3. Fill in the parameters and call the service
 
-#### Via YAML
-
-You can also configure entities in your `configuration.yaml`:
+#### Via YAML Service Calls
 
 ```yaml
-# Example Button
-button:
-  - platform: ha_osc_control
-    name: "Trigger Effect"
-    osc_address: "/fx/trigger"
-    value: 1.0
-    value_type: float
+# Add a Button
+service: ha_osc_control.add_button
+data:
+  name: "Trigger Effect"
+  osc_address: "/fx/trigger"
+  value: 1.0
+  value_type: "float"
 
-# Example Number (Slider)
-number:
-  - platform: ha_osc_control
-    name: "Master Volume"
-    osc_address: "/mix/volume"
-    min: 0.0
-    max: 1.0
-    step: 0.01
-    value_type: float
+# Add a Slider
+service: ha_osc_control.add_slider
+data:
+  name: "Master Volume"
+  osc_address: "/mix/volume"
+  min: 0.0
+  max: 1.0
+  step: 0.01
+  value_type: "float"
+```
+
+#### Via Automation
+
+You can also create controls automatically when Home Assistant starts:
+
+```yaml
+automation:
+  - alias: "Setup OSC Controls"
+    trigger:
+      - platform: homeassistant
+        event: start
+    action:
+      - service: ha_osc_control.add_button
+        data:
+          name: "Trigger Effect"
+          osc_address: "/fx/trigger"
+          value: 1.0
+      - service: ha_osc_control.add_slider
+        data:
+          name: "Master Volume"
+          osc_address: "/mix/volume"
+          min: 0.0
+          max: 1.0
 ```
 
 ## Usage Examples
@@ -95,19 +117,20 @@ number:
 Control volume faders and mute buttons on OSC-compatible mixing consoles:
 
 ```yaml
-number:
-  - platform: ha_osc_control
-    name: "Channel 1 Volume"
-    osc_address: "/ch/01/mix/fader"
-    min: 0.0
-    max: 1.0
-
-button:
-  - platform: ha_osc_control
-    name: "Channel 1 Mute"
-    osc_address: "/ch/01/mix/mute"
-    value: 1
-    value_type: int
+service: ha_osc_control.add_slider
+data:
+  name: "Channel 1 Volume"
+  osc_address: "/ch/01/mix/fader"
+  min: 0.0
+  max: 1.0
+  value_type: "float"
+---
+service: ha_osc_control.add_button
+data:
+  name: "Channel 1 Mute"
+  osc_address: "/ch/01/mix/mute"
+  value: 1
+  value_type: "int"
 ```
 
 ### Lighting Control
@@ -115,13 +138,13 @@ button:
 Control OSC-enabled lighting systems:
 
 ```yaml
-number:
-  - platform: ha_osc_control
-    name: "Stage Light Brightness"
-    osc_address: "/light/1/intensity"
-    min: 0
-    max: 255
-    value_type: int
+service: ha_osc_control.add_slider
+data:
+  name: "Stage Light Brightness"
+  osc_address: "/light/1/intensity"
+  min: 0
+  max: 255
+  value_type: "int"
 ```
 
 ### Video Projection
@@ -129,12 +152,12 @@ number:
 Control VJ software or video projectors:
 
 ```yaml
-button:
-  - platform: ha_osc_control
-    name: "Next Scene"
-    osc_address: "/scene/next"
-    value: true
-    value_type: bool
+service: ha_osc_control.add_button
+data:
+  name: "Next Scene"
+  osc_address: "/scene/next"
+  value: 1
+  value_type: "int"
 ```
 
 ## Compatible Hardware/Software

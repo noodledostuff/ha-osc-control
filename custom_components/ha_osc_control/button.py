@@ -21,8 +21,11 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up OSC Control button based on a config entry."""
-    # Don't add any buttons by default - user will add them via service call or UI
-    pass
+    buttons = hass.data[DOMAIN][config_entry.entry_id].get("buttons", [])
+    if buttons:
+        async_add_entities(buttons, True)
+        # Clear the list after adding
+        hass.data[DOMAIN][config_entry.entry_id]["buttons"] = []
 
 
 class OSCButton(ButtonEntity):

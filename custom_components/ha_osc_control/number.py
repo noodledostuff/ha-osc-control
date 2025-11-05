@@ -20,8 +20,11 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up OSC Control number based on a config entry."""
-    # Don't add any numbers by default - user will add them via service call or UI
-    pass
+    sliders = hass.data[DOMAIN][config_entry.entry_id].get("sliders", [])
+    if sliders:
+        async_add_entities(sliders, True)
+        # Clear the list after adding
+        hass.data[DOMAIN][config_entry.entry_id]["sliders"] = []
 
 
 class OSCNumber(NumberEntity):

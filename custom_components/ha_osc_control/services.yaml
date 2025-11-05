@@ -1,0 +1,104 @@
+add_button:
+  name: Add OSC Button
+  description: Add a new button that sends an OSC message when pressed
+  fields:
+    name:
+      name: Name
+      description: Friendly name for the button
+      required: true
+      example: "Trigger Effect"
+      selector:
+        text:
+    osc_address:
+      name: OSC Address
+      description: OSC address path (e.g., /fx/trigger)
+      required: true
+      example: "/fx/trigger"
+      selector:
+        text:
+    value:
+      name: Value
+      description: Value to send when button is pressed
+      required: false
+      default: 1.0
+      example: 1.0
+      selector:
+        number:
+          min: -1000
+          max: 1000
+          step: 0.01
+    value_type:
+      name: Value Type
+      description: Data type of the value
+      required: false
+      default: "float"
+      example: "float"
+      selector:
+        select:
+          options:
+            - "float"
+            - "int"
+            - "bool"
+
+add_slider:
+  name: Add OSC Slider
+  description: Add a new slider/fader that sends OSC messages when adjusted
+  fields:
+    name:
+      name: Name
+      description: Friendly name for the slider
+      required: true
+      example: "Master Volume"
+      selector:
+        text:
+    osc_address:
+      name: OSC Address
+      description: OSC address path (e.g., /mix/volume)
+      required: true
+      example: "/mix/volume"
+      selector:
+        text:
+    min:
+      name: Minimum Value
+      description: Minimum value for the slider
+      required: false
+      default: 0.0
+      example: 0.0
+      selector:
+        number:
+          min: -1000
+          max: 1000
+          step: 0.01
+    max:
+      name: Maximum Value
+      description: Maximum value for the slider
+      required: false
+      default: 1.0
+      example: 1.0
+      selector:
+        number:
+          min: -1000
+          max: 1000
+          step: 0.01
+    step:
+      name: Step
+      description: Step increment for the slider
+      required: false
+      default: 0.01
+      example: 0.01
+      selector:
+        number:
+          min: 0.001
+          max: 100
+          step: 0.001
+    value_type:
+      name: Value Type
+      description: Data type of the value
+      required: false
+      default: "float"
+      example: "float"
+      selector:
+        select:
+          options:
+            - "float"
+            - "int"
