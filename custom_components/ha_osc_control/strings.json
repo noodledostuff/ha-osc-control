@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up OSC Control",
+        "description": "Configure connection to your OSC-enabled hardware",
+        "data": {
+          "name": "Device Name",
+          "host": "Host (IP Address)",
+          "port": "Port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to OSC server. Please check the host and port.",
+      "unknown": "Unexpected error occurred"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  }
+}
