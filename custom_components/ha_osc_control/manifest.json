@@ -1,12 +1,12 @@
 {
   "domain": "ha_osc_control",
   "name": "OSC Control",
-  "codeowners": ["@yourusername"],
+  "codeowners": ["@noodledostuff"],
   "config_flow": true,
-  "documentation": "https://github.com/yourusername/ha-osc-control",
+  "documentation": "https://github.com/noodledostuff/ha-osc-control",
   "integration_type": "device",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/yourusername/ha-osc-control/issues",
+  "issue_tracker": "https://github.com/noodledostuff/ha-osc-control/issues",
   "requirements": ["python-osc==1.8.3"],
   "version": "1.0.0"
 }

@@ -162,12 +162,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-[commits-shield]: https://img.shields.io/github/commit-activity/y/yourusername/ha-osc-control.svg?style=for-the-badge
-[commits]: https://github.com/yourusername/ha-osc-control/commits/main
+[commits-shield]: https://img.shields.io/github/commit-activity/y/noodledostuff/ha-osc-control.svg?style=for-the-badge
+[commits]: https://github.com/noodledostuff/ha-osc-control/commits/main
 [hacs]: https://github.com/hacs/integration
 [hacsbadge]: https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge
-[license-shield]: https://img.shields.io/github/license/yourusername/ha-osc-control.svg?style=for-the-badge
-[releases-shield]: https://img.shields.io/github/release/yourusername/ha-osc-control.svg?style=for-the-badge
-[releases]: https://github.com/yourusername/ha-osc-control/releases
-[issues]: https://github.com/yourusername/ha-osc-control/issues
-[discussions]: https://github.com/yourusername/ha-osc-control/discussions
+[license-shield]: https://img.shields.io/github/license/noodledostuff/ha-osc-control.svg?style=for-the-badge
+[releases-shield]: https://img.shields.io/github/release/noodledostuff/ha-osc-control.svg?style=for-the-badge
+[releases]: https://github.com/noodledostuff/ha-osc-control/releases
+[issues]: https://github.com/noodledostuff/ha-osc-control/issues
+[discussions]: https://github.com/noodledostuff/ha-osc-control/discussions
