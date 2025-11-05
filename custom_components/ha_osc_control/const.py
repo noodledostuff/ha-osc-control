@@ -13,3 +13,4 @@ VALUE_TYPE_BOOL = "bool"
 
 # Default values
 DEFAULT_PORT = 9000
+DEFAULT_LISTEN_PORT = 9001

@@ -27,27 +27,33 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS: list[Platform] = [Platform.BUTTON, Platform.NUMBER]
 
 # Service schemas
-SERVICE_ADD_BUTTON_SCHEMA = vol.Schema(
+SERVICE_ADD_ENDPOINT_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
+        vol.Optional(CONF_HOST): cv.string,
+        vol.Optional(CONF_PORT): cv.port,
         vol.Required(CONF_OSC_ADDRESS): cv.string,
-        vol.Optional("value", default=1.0): vol.Any(float, int, bool),
         vol.Optional(CONF_VALUE_TYPE, default=VALUE_TYPE_FLOAT): vol.In(
             [VALUE_TYPE_FLOAT, VALUE_TYPE_INT, VALUE_TYPE_BOOL]
         ),
     }
 )
 
+SERVICE_ADD_BUTTON_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_NAME): cv.string,
+        vol.Required("endpoint_id"): cv.string,
+        vol.Optional("value", default=1.0): vol.Any(float, int, bool),
+    }
+)
+
 SERVICE_ADD_SLIDER_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
-        vol.Required(CONF_OSC_ADDRESS): cv.string,
+        vol.Required("endpoint_id"): cv.string,
         vol.Optional("min", default=0.0): vol.Coerce(float),
         vol.Optional("max", default=1.0): vol.Coerce(float),
         vol.Optional("step", default=0.01): vol.Coerce(float),
-        vol.Optional(CONF_VALUE_TYPE, default=VALUE_TYPE_FLOAT): vol.In(
-            [VALUE_TYPE_FLOAT, VALUE_TYPE_INT]
-        ),
     }
 )
 
@@ -67,6 +73,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             "client": client,
             "host": host,
             "port": port,
+            "endpoints": {},  # Dictionary of endpoint_id -> OSCEndpoint
             "buttons": [],
             "sliders": [],
         }
@@ -75,58 +82,100 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
         
         # Register services
+        async def handle_add_endpoint(call: ServiceCall) -> None:
+            """Handle add_endpoint service call."""
+            from .osc_endpoint import OSCEndpoint
+            
+            name = call.data[CONF_NAME]
+            endpoint_host = call.data.get(CONF_HOST, host)
+            endpoint_port = call.data.get(CONF_PORT, port)
+            osc_address = call.data[CONF_OSC_ADDRESS]
+            value_type = call.data[CONF_VALUE_TYPE]
+            
+            # Create endpoint
+            endpoint = OSCEndpoint(
+                hass=hass,
+                entry_id=entry.entry_id,
+                name=name,
+                host=endpoint_host,
+                port=endpoint_port,
+                osc_address=osc_address,
+                value_type=value_type,
+            )
+            
+            # Store endpoint
+            hass.data[DOMAIN][entry.entry_id]["endpoints"][endpoint.unique_id] = endpoint
+            _LOGGER.info(
+                "Added OSC endpoint: %s -> %s:%s%s",
+                name,
+                endpoint_host,
+                endpoint_port,
+                osc_address,
+            )
+        
         async def handle_add_button(call: ServiceCall) -> None:
             """Handle add_button service call."""
             from .button import OSCButton
             
             name = call.data[CONF_NAME]
-            osc_address = call.data[CONF_OSC_ADDRESS]
+            endpoint_id = call.data["endpoint_id"]
             value = call.data["value"]
-            value_type = call.data[CONF_VALUE_TYPE]
+            
+            # Get endpoint
+            endpoint = hass.data[DOMAIN][entry.entry_id]["endpoints"].get(endpoint_id)
+            if not endpoint:
+                _LOGGER.error("Endpoint %s not found", endpoint_id)
+                return
             
             # Create button entity
             button = OSCButton(
                 hass=hass,
                 entry_id=entry.entry_id,
                 name=name,
-                osc_address=osc_address,
+                endpoint=endpoint,
                 value=value,
-                value_type=value_type,
             )
             
             # Add entity
             hass.data[DOMAIN][entry.entry_id]["buttons"].append(button)
             await hass.config_entries.async_forward_entry_setup(entry, Platform.BUTTON)
-            _LOGGER.info("Added OSC button: %s -> %s", name, osc_address)
+            _LOGGER.info("Added OSC button: %s", name)
         
         async def handle_add_slider(call: ServiceCall) -> None:
             """Handle add_slider service call."""
             from .number import OSCNumber
             
             name = call.data[CONF_NAME]
-            osc_address = call.data[CONF_OSC_ADDRESS]
+            endpoint_id = call.data["endpoint_id"]
             min_value = call.data["min"]
             max_value = call.data["max"]
             step = call.data["step"]
-            value_type = call.data[CONF_VALUE_TYPE]
+            
+            # Get endpoint
+            endpoint = hass.data[DOMAIN][entry.entry_id]["endpoints"].get(endpoint_id)
+            if not endpoint:
+                _LOGGER.error("Endpoint %s not found", endpoint_id)
+                return
             
             # Create number entity
             slider = OSCNumber(
                 hass=hass,
                 entry_id=entry.entry_id,
                 name=name,
-                osc_address=osc_address,
+                endpoint=endpoint,
                 min_value=min_value,
                 max_value=max_value,
                 step=step,
-                value_type=value_type,
             )
             
             # Add entity
             hass.data[DOMAIN][entry.entry_id]["sliders"].append(slider)
             await hass.config_entries.async_forward_entry_setup(entry, Platform.NUMBER)
-            _LOGGER.info("Added OSC slider: %s -> %s", name, osc_address)
+            _LOGGER.info("Added OSC slider: %s", name)
         
+        hass.services.async_register(
+            DOMAIN, "add_endpoint", handle_add_endpoint, schema=SERVICE_ADD_ENDPOINT_SCHEMA
+        )
         hass.services.async_register(
             DOMAIN, "add_button", handle_add_button, schema=SERVICE_ADD_BUTTON_SCHEMA
         )

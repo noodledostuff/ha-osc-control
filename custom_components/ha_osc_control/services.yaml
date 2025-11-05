@@ -1,32 +1,37 @@
-add_button:
-  name: Add OSC Button
-  description: Add a new button that sends an OSC message when pressed
+add_endpoint:
+  name: Add OSC Endpoint
+  description: Create an OSC endpoint (target destination + address) that can be triggered by buttons/sliders
   fields:
     name:
       name: Name
-      description: Friendly name for the button
+      description: Friendly name for the endpoint
       required: true
-      example: "Trigger Effect"
+      example: "Master Volume Control"
       selector:
         text:
-    osc_address:
-      name: OSC Address
-      description: OSC address path (e.g., /fx/trigger)
-      required: true
-      example: "/fx/trigger"
-      selector:
-        text:
-    value:
-      name: Value
-      description: Value to send when button is pressed
+    host:
+      name: Host
+      description: OSC server IP address (optional, uses integration default)
       required: false
-      default: 1.0
-      example: 1.0
+      example: "192.168.1.100"
+      selector:
+        text:
+    port:
+      name: Port
+      description: OSC server port (optional, uses integration default)
+      required: false
+      example: 9000
       selector:
         number:
-          min: -1000
-          max: 1000
-          step: 0.01
+          min: 1
+          max: 65535
+    osc_address:
+      name: OSC Address
+      description: OSC address path (e.g., /mix/volume)
+      required: true
+      example: "/mix/volume"
+      selector:
+        text:
     value_type:
       name: Value Type
       description: Data type of the value
@@ -40,9 +45,39 @@ add_button:
             - "int"
             - "bool"
 
+add_button:
+  name: Add OSC Button
+  description: Add a button that triggers a pre-configured OSC endpoint
+  fields:
+    name:
+      name: Name
+      description: Friendly name for the button
+      required: true
+      example: "Trigger Effect"
+      selector:
+        text:
+    endpoint_id:
+      name: Endpoint ID
+      description: The unique ID of the OSC endpoint to trigger
+      required: true
+      example: "your_entry_id_/fx/trigger"
+      selector:
+        text:
+    value:
+      name: Value
+      description: Value to send when button is pressed
+      required: false
+      default: 1.0
+      example: 1.0
+      selector:
+        number:
+          min: -1000
+          max: 1000
+          step: 0.01
+
 add_slider:
   name: Add OSC Slider
-  description: Add a new slider/fader that sends OSC messages when adjusted
+  description: Add a slider/fader that controls a pre-configured OSC endpoint
   fields:
     name:
       name: Name
@@ -51,11 +86,11 @@ add_slider:
       example: "Master Volume"
       selector:
         text:
-    osc_address:
-      name: OSC Address
-      description: OSC address path (e.g., /mix/volume)
+    endpoint_id:
+      name: Endpoint ID
+      description: The unique ID of the OSC endpoint to control
       required: true
-      example: "/mix/volume"
+      example: "your_entry_id_/mix/volume"
       selector:
         text:
     min:
@@ -91,14 +126,3 @@ add_slider:
           min: 0.001
           max: 100
           step: 0.001
-    value_type:
-      name: Value Type
-      description: Data type of the value
-      required: false
-      default: "float"
-      example: "float"
-      selector:
-        select:
-          options:
-            - "float"
-            - "int"

@@ -38,20 +38,18 @@ class OSCNumber(NumberEntity):
         hass: HomeAssistant,
         entry_id: str,
         name: str,
-        osc_address: str,
+        endpoint: Any,  # OSCEndpoint
         min_value: float = 0.0,
         max_value: float = 1.0,
         step: float = 0.01,
-        value_type: str = VALUE_TYPE_FLOAT,
         unique_id: str | None = None,
     ) -> None:
         """Initialize the OSC number entity."""
         self.hass = hass
         self._entry_id = entry_id
         self._attr_name = name
-        self._osc_address = osc_address
-        self._value_type = value_type
-        self._attr_unique_id = unique_id or f"{entry_id}_{osc_address}"
+        self._endpoint = endpoint
+        self._attr_unique_id = unique_id or f"{entry_id}_slider_{endpoint.unique_id}"
         
         # Set number entity attributes
         self._attr_native_min_value = min_value
@@ -61,22 +59,6 @@ class OSCNumber(NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value and send OSC message."""
-        client = self.hass.data[DOMAIN][self._entry_id]["client"]
-        
-        # Convert value based on type
-        if self._value_type == VALUE_TYPE_INT:
-            send_value = int(value)
-        else:  # VALUE_TYPE_FLOAT
-            send_value = float(value)
-        
-        try:
-            await self.hass.async_add_executor_job(
-                client.send_message, self._osc_address, send_value
-            )
-            self._attr_native_value = value
-            self.async_write_ha_state()
-            _LOGGER.debug(
-                "Sent OSC message to %s with value %s", self._osc_address, send_value
-            )
-        except Exception as err:
-            _LOGGER.error("Failed to send OSC message: %s", err)
+        await self._endpoint.send_value(value)
+        self._attr_native_value = value
+        self.async_write_ha_state()

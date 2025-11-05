@@ -54,36 +54,52 @@ Platform | Description
 
 ### Adding Controls
 
-After setting up the integration, add buttons and sliders using service calls:
+The integration uses a two-step process:
 
-#### Via Developer Tools
+1. **Create OSC Endpoints** - Define target destinations and OSC addresses
+2. **Create Controls** - Add buttons/sliders that trigger those endpoints
 
-1. Go to **Developer Tools** → **Services**
-2. Select service:
-   - `ha_osc_control.add_button` for triggering OSC messages
-   - `ha_osc_control.add_slider` for continuous control (sliders/faders)
-3. Fill in the parameters and call the service
+#### Step 1: Create OSC Endpoints
 
-#### Via YAML Service Calls
+In **Developer Tools** → **Services**, create endpoints:
 
 ```yaml
-# Add a Button
-service: ha_osc_control.add_button
-data:
-  name: "Trigger Effect"
-  osc_address: "/fx/trigger"
-  value: 1.0
-  value_type: "float"
-
-# Add a Slider
-service: ha_osc_control.add_slider
+# Create an endpoint for volume control
+service: ha_osc_control.add_endpoint
 data:
   name: "Master Volume"
   osc_address: "/mix/volume"
+  value_type: "float"
+  # host and port are optional (uses integration defaults)
+
+# Create an endpoint for FX trigger
+service: ha_osc_control.add_endpoint
+data:
+  name: "FX Trigger"
+  osc_address: "/fx/trigger"
+  value_type: "int"
+```
+
+Note the **endpoint_id** that appears in the logs (format: `entry_id_/osc/address`).
+
+#### Step 2: Create Buttons and Sliders
+
+```yaml
+# Add a Slider controlling the volume endpoint
+service: ha_osc_control.add_slider
+data:
+  name: "Master Volume Fader"
+  endpoint_id: "your_entry_id_/mix/volume"  # Use the endpoint ID from step 1
   min: 0.0
   max: 1.0
   step: 0.01
-  value_type: "float"
+
+# Add a Button triggering the FX endpoint
+service: ha_osc_control.add_button
+data:
+  name: "Trigger Effect"
+  endpoint_id: "your_entry_id_/fx/trigger"  # Use the endpoint ID from step 1
+  value: 1
 ```
 
 #### Via Automation
@@ -97,17 +113,27 @@ automation:
       - platform: homeassistant
         event: start
     action:
-      - service: ha_osc_control.add_button
-        data:
-          name: "Trigger Effect"
-          osc_address: "/fx/trigger"
-          value: 1.0
-      - service: ha_osc_control.add_slider
+      # Create endpoints first
+      - service: ha_osc_control.add_endpoint
         data:
           name: "Master Volume"
           osc_address: "/mix/volume"
+      - service: ha_osc_control.add_endpoint
+        data:
+          name: "FX Trigger"
+          osc_address: "/fx/trigger"
+      # Then create controls
+      - service: ha_osc_control.add_slider
+        data:
+          name: "Master Volume Fader"
+          endpoint_id: "your_entry_id_/mix/volume"
           min: 0.0
           max: 1.0
+      - service: ha_osc_control.add_button
+        data:
+          name: "Trigger Effect"
+          endpoint_id: "your_entry_id_/fx/trigger"
+          value: 1.0
 ```
 
 ## Usage Examples
@@ -117,20 +143,32 @@ automation:
 Control volume faders and mute buttons on OSC-compatible mixing consoles:
 
 ```yaml
+# Create endpoints
+service: ha_osc_control.add_endpoint
+data:
+  name: "Ch1 Volume"
+  osc_address: "/ch/01/mix/fader"
+  value_type: "float"
+---
+service: ha_osc_control.add_endpoint
+data:
+  name: "Ch1 Mute"
+  osc_address: "/ch/01/mix/mute"
+  value_type: "int"
+---
+# Create controls
 service: ha_osc_control.add_slider
 data:
   name: "Channel 1 Volume"
-  osc_address: "/ch/01/mix/fader"
+  endpoint_id: "your_entry_id_/ch/01/mix/fader"
   min: 0.0
   max: 1.0
-  value_type: "float"
 ---
 service: ha_osc_control.add_button
 data:
   name: "Channel 1 Mute"
-  osc_address: "/ch/01/mix/mute"
+  endpoint_id: "your_entry_id_/ch/01/mix/mute"
   value: 1
-  value_type: "int"
 ```
 
 ### Lighting Control
