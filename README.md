@@ -42,6 +42,8 @@ Platform | Description
 
 ## Configuration
 
+> **👉 For a complete step-by-step UI guide, see [SETUP_GUIDE.md](SETUP_GUIDE.md)**
+
 ### Adding the Integration
 
 1. Go to **Settings** → **Devices & Services**

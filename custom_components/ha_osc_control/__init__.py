@@ -10,7 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_NAME, Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import config_validation as cv, device_registry as dr
 import voluptuous as vol
 
 from .const import (
@@ -57,6 +57,8 @@ SERVICE_ADD_SLIDER_SCHEMA = vol.Schema(
     }
 )
 
+SERVICE_LIST_ENDPOINTS_SCHEMA = vol.Schema({})
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up OSC Control from a config entry."""
@@ -66,6 +68,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         # Create OSC client
         client = udp_client.SimpleUDPClient(host, port)
+        
+        # Create device
+        device_registry = dr.async_get(hass)
+        device_registry.async_get_or_create(
+            config_entry_id=entry.entry_id,
+            identifiers={(DOMAIN, entry.entry_id)},
+            manufacturer="OSC Control",
+            name=entry.data.get(CONF_NAME, "OSC Device"),
+            model="OSC Client",
+            configuration_url=f"homeassistant://config/integrations/integration/{DOMAIN}",
+        )
         
         # Store client in hass.data
         hass.data.setdefault(DOMAIN, {})
@@ -173,6 +186,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             await hass.config_entries.async_forward_entry_setup(entry, Platform.NUMBER)
             _LOGGER.info("Added OSC slider: %s", name)
         
+        async def handle_list_endpoints(call: ServiceCall) -> None:
+            """Handle list_endpoints service call."""
+            endpoints = hass.data[DOMAIN][entry.entry_id]["endpoints"]
+            if not endpoints:
+                _LOGGER.info("No endpoints configured")
+                return
+            
+            _LOGGER.info("Configured OSC Endpoints:")
+            for endpoint_id, endpoint in endpoints.items():
+                _LOGGER.info(
+                    "  - ID: %s | Name: %s | Address: %s:%s%s | Type: %s",
+                    endpoint_id,
+                    endpoint.name,
+                    endpoint.host,
+                    endpoint.port,
+                    endpoint.osc_address,
+                    endpoint.value_type,
+                )
+        
         hass.services.async_register(
             DOMAIN, "add_endpoint", handle_add_endpoint, schema=SERVICE_ADD_ENDPOINT_SCHEMA
         )
@@ -181,6 +213,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         hass.services.async_register(
             DOMAIN, "add_slider", handle_add_slider, schema=SERVICE_ADD_SLIDER_SCHEMA
+        )
+        hass.services.async_register(
+            DOMAIN, "list_endpoints", handle_list_endpoints, schema=SERVICE_LIST_ENDPOINTS_SCHEMA
         )
         
         return True
