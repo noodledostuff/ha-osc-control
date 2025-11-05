@@ -153,3 +153,4 @@ This way, your controls will be recreated every time Home Assistant restarts!
 **Q: How do I change endpoint settings?**
 - Currently you need to create a new endpoint with different settings
 - Future updates will add endpoint management
+

@@ -234,3 +234,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 [releases]: https://github.com/noodledostuff/ha-osc-control/releases
 [issues]: https://github.com/noodledostuff/ha-osc-control/issues
 [discussions]: https://github.com/noodledostuff/ha-osc-control/discussions
+
