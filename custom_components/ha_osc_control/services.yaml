@@ -72,7 +72,7 @@ add_button:
       name: Endpoint ID
       description: The unique ID of the OSC endpoint to trigger
       required: true
-      example: "your_entry_id_/fx/trigger"
+      example: "your_entry_id__fx_trigger"
       selector:
         text:
     value:
@@ -108,7 +108,7 @@ add_slider:
       name: Endpoint ID
       description: The unique ID of the OSC endpoint to control
       required: true
-      example: "your_entry_id_/mix/volume"
+      example: "your_entry_id__mix_volume"
       selector:
         text:
     min:

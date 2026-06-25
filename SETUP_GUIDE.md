@@ -2,6 +2,12 @@
 
 This guide walks you through setting up OSC Control entirely through the Home Assistant UI.
 
+Use **OSC Control v1.0.1 or newer** with current Home Assistant releases. It
+has been verified with Home Assistant Core **2026.6.4** and fixes the
+button/slider creation failure reported on Core **2025.12.3**. Earlier 0.2.x
+builds can fail when creating buttons or sliders because they use a Home
+Assistant platform setup API that has since been removed.
+
 ## Step 1: Add the Integration
 
 1. Go to **Settings** → **Devices & Services**
@@ -16,6 +22,9 @@ This guide walks you through setting up OSC Control entirely through the Home As
 ## Step 2: Create OSC Endpoints
 
 OSC endpoints define the destinations (OSC addresses) that your buttons and sliders will control.
+Create endpoints, buttons, and sliders from **Developer Tools** → **Actions**.
+The old **Developer Tools** → **Services** page is no longer used by current
+Home Assistant.
 
 1. Go to **Developer Tools** → **Actions**
 2. Select action: `ha_osc_control.add_endpoint`

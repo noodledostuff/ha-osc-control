@@ -24,6 +24,12 @@ Platform | Description
 
 ## Installation
 
+Use **v1.0.1 or newer** for current Home Assistant releases. It has been
+verified with Home Assistant Core **2026.6.4** and fixes the button/slider
+creation failure reported on Core **2025.12.3**. Earlier 0.2.x builds used a
+removed Home Assistant platform setup API, so creating buttons/sliders from
+Actions can fail on newer Home Assistant Core versions.
+
 ### HACS (Recommended)
 
 1. Open HACS in Home Assistant
@@ -61,6 +67,10 @@ The integration uses a two-step process:
 1. **Create OSC Endpoints** - Define target destinations and OSC addresses
 2. **Create Controls** - Add buttons/sliders that trigger those endpoints
 
+Endpoints, buttons, and sliders are created from **Developer Tools** →
+**Actions**. The old **Developer Tools** → **Services** tab no longer exists in
+current Home Assistant.
+
 #### Step 1: Create OSC Endpoints
 
 In **Developer Tools** → **Actions**, select `ha_osc_control.add_endpoint`.
@@ -80,7 +90,9 @@ osc_address: "/fx/trigger"
 value_type: "int"
 ```
 
-Note the **endpoint_id** that appears in the logs (format: `entry_id__osc_address`).
+Note the **endpoint_id** that appears in the logs. It is generated from the
+config entry ID and OSC address, for example `/mix/volume` becomes
+`your_entry_id__mix_volume`.
 
 #### Step 2: Create Buttons and Sliders
 
