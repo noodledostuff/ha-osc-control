@@ -1,18 +1,15 @@
 """Support for OSC Control buttons."""
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers import entity_registry as er
+from homeassistant.util import slugify
 
-from .const import CONF_OSC_ADDRESS, CONF_VALUE_TYPE, DOMAIN, VALUE_TYPE_BOOL, VALUE_TYPE_FLOAT, VALUE_TYPE_INT
-
-_LOGGER = logging.getLogger(__name__)
+from .const import DOMAIN
 
 
 async def async_setup_entry(
@@ -21,11 +18,12 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up OSC Control button based on a config entry."""
-    buttons = hass.data[DOMAIN][config_entry.entry_id].get("buttons", [])
-    if buttons:
+    data = hass.data[DOMAIN][config_entry.entry_id]
+    data["add_buttons"] = async_add_entities
+
+    if buttons := data["pending_buttons"]:
         async_add_entities(buttons, True)
-        # Clear the list after adding
-        hass.data[DOMAIN][config_entry.entry_id]["buttons"] = []
+        data["pending_buttons"] = []
 
 
 class OSCButton(ButtonEntity):
@@ -48,7 +46,9 @@ class OSCButton(ButtonEntity):
         self._attr_name = name
         self._endpoint = endpoint
         self._value = value
-        self._attr_unique_id = unique_id or f"{entry_id}_button_{endpoint.unique_id}"
+        self._attr_unique_id = (
+            unique_id or f"{entry_id}_button_{endpoint.unique_id}_{slugify(name)}"
+        )
 
     async def async_press(self) -> None:
         """Handle the button press."""

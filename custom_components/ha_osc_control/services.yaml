@@ -9,6 +9,12 @@ add_endpoint:
       example: "Master Volume Control"
       selector:
         text:
+    entry_id:
+      name: Entry ID
+      description: Optional OSC Control config entry ID (required only when multiple OSC Control entries exist)
+      required: false
+      selector:
+        text:
     host:
       name: Host
       description: OSC server IP address (optional, uses integration default)
@@ -56,6 +62,12 @@ add_button:
       example: "Trigger Effect"
       selector:
         text:
+    entry_id:
+      name: Entry ID
+      description: Optional OSC Control config entry ID (required only when the endpoint ID exists in multiple entries)
+      required: false
+      selector:
+        text:
     endpoint_id:
       name: Endpoint ID
       description: The unique ID of the OSC endpoint to trigger
@@ -84,6 +96,12 @@ add_slider:
       description: Friendly name for the slider
       required: true
       example: "Master Volume"
+      selector:
+        text:
+    entry_id:
+      name: Entry ID
+      description: Optional OSC Control config entry ID (required only when the endpoint ID exists in multiple entries)
+      required: false
       selector:
         text:
     endpoint_id:
@@ -130,3 +148,10 @@ add_slider:
 list_endpoints:
   name: List OSC Endpoints
   description: Show all configured OSC endpoints with their IDs in the logs
+  fields:
+    entry_id:
+      name: Entry ID
+      description: Optional OSC Control config entry ID to list
+      required: false
+      selector:
+        text:
